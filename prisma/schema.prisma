@@ -1,0 +1,166 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clientes {
+  id                Int               @id @default(autoincrement())
+  nome              String
+  email             String
+  password          String
+  cpf               String
+  rua               String
+  numero            String
+  telefone          String
+  bairro            String
+  localidade        String
+  cep               String
+  pontoDeReferencia String
+  aniversario       DateTime
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  pedidosDelivery   PedidoDelivery[]
+  comprasClientes   ComprasClientes[]
+}
+
+model Fornecedores {
+  id                 Int       @id @default(autoincrement())
+  nome               String
+  email              String
+  telefone           String
+  cnpj               String
+  razaoSocial        String
+  inscricaoEstadual  String
+  inscricaoMunicipal String
+  nomeFantasia       String
+  pathImagem         String
+  cep                String
+  logradouro         String
+  bairro             String
+  localidade         String
+  uf                 String
+  complemento        String
+  createdAt          DateTime  @default(now())
+  updateAt           DateTime  @updatedAt
+  produtos           Produto[]
+}
+
+model Produto {
+  id                        Int          @id @default(autoincrement())
+  codigoDeBarras            String
+  nome                      String
+  descricao                 String
+  peso                      Float
+  preco                     Float
+  precoAquisicao            Float
+  precoCusto                Float
+  margem                    Float
+  quantidade                Float
+  quantidadeMinimaEmEstoque Float?
+  pathImagem                String
+  isDelivery                Boolean
+  validade                  DateTime?
+  dataEntradaEstoque        DateTime?
+  dataSaidaEstoque          DateTime?
+  unidadeDeMedida           String
+  cratedAt                  DateTime     @default(now())
+  updateAt                  DateTime     @updatedAt
+  fornecedorId              Int
+  categoriaId               Int
+  fornecedor                Fornecedores @relation(fields: [fornecedorId], references: [id])
+  categoria                 Categoria    @relation(fields: [categoriaId], references: [id])
+}
+
+model Categoria {
+  id           Int       @id @default(autoincrement())
+  nome         String
+  subCategoria String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  produtos     Produto[]
+}
+
+model Funcionario {
+  id              Int               @id @default(autoincrement())
+  nome            String
+  email           String
+  senha           String
+  endereco        String
+  cargo           String
+  token           String?
+  cpf             String
+  pathPhoto       String
+  isActivity      Boolean
+  createdAt       DateTime          @default(now())
+  updateAt        DateTime          @updatedAt
+  pedidosDelivery PedidoDelivery[]
+  comprasClientes ComprasClientes[]
+  Checkout        Checkout[]
+}
+
+model PedidoDelivery {
+  id               Int         @id @default(autoincrement())
+  clienteId        Int
+  funcionarioId    Int
+  listaVendas      String
+  statusCheckoutId Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  cliente          Clientes    @relation(fields: [clienteId], references: [id])
+  funcionario      Funcionario @relation(fields: [funcionarioId], references: [id])
+  checkout         Checkout    @relation(fields: [statusCheckoutId], references: [id])
+}
+
+model ComprasClientes {
+  id               Int         @id @default(autoincrement())
+  clienteId        Int
+  funcionarioId    Int
+  listaVendas      String
+  statusCheckoutId Int
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+  cliente          Clientes    @relation(fields: [clienteId], references: [id])
+  funcionario      Funcionario @relation(fields: [funcionarioId], references: [id])
+  checkout         Checkout    @relation(fields: [statusCheckoutId], references: [id])
+}
+
+model Checkout {
+  id                Int               @id @default(autoincrement())
+  statusdopagamento Boolean
+  formadePagamento  String
+  valorPago         Float
+  funcionarioId     Int
+  tipodevenda       String
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  funcionario       Funcionario?      @relation(fields: [funcionarioId], references: [id])
+  PedidoDelivery    PedidoDelivery[]
+  ComprasClientes   ComprasClientes[]
+}
+
+model Custos {
+  id               Int      @id @default(autoincrement())
+  nome             String
+  descricao        String
+  valor            Float
+  isRecorrente     Boolean
+  isExtraordinaria Boolean
+  formaPagamento   String
+  createdAt        DateTime @default(now())
+  updateAt         DateTime @updatedAt
+}
+
+model ContasVariaveis {
+  id            String   @id
+  nome          String
+  descricao     String
+  valor         Float
+  clienteId     Int
+  funcionarioId Int
+  createdAt     DateTime @default(now())
+  updateAt      DateTime @updatedAt
+}
